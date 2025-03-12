@@ -14,7 +14,7 @@ public class CRTRenderFeature : ScriptableRendererFeature
     //ScripstableRendererFeature is an abstract class, you need this method
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
-        crtPass.Setup(renderer.cameraColorTarget);
+        crtPass.Setup(renderer.cameraColorTargetHandle);
         renderer.EnqueuePass(crtPass);
     }
 }
