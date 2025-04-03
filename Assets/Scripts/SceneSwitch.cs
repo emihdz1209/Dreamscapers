@@ -8,15 +8,30 @@ public class SceneSwitch : MonoBehaviour
     [Tooltip("Drag the scene to load from the Build Settings")]
     public int sceneBuildIndex; //for inspector
 
-    [Header("Trigger Settings")]
+    [Header("Trigger Mode")]
     public bool requireKeyPress = false;
     public KeyCode interactionKey = KeyCode.E;
+    
+    [Header("Timer Mode (Overrides Key Press)")]
+    public bool useTimer = false;
+    public float delayBeforeLoad = 3f;
+    
     private bool playerInTrigger = false;
+    private float timer = 0f;
 
     void Update()
     {
-        //handle key press (if needed)
-        if (playerInTrigger && requireKeyPress && Input.GetKeyDown(interactionKey))
+        //timer-based loading
+        if (playerInTrigger && useTimer)
+        {
+            timer += Time.deltaTime;
+            if (timer >= delayBeforeLoad)
+            {
+                LoadScene();
+            }
+        }
+        //key press loading
+        else if (playerInTrigger && requireKeyPress && Input.GetKeyDown(interactionKey))
         {
             LoadScene();
         }
@@ -27,17 +42,23 @@ public class SceneSwitch : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playerInTrigger = true;
+            timer = 0f; //reset timer on enter
             
-            //auto-load if no key press required
-            if (!requireKeyPress)
+            //immediate load if no special mode
+            if (!requireKeyPress && !useTimer)
+            {
                 LoadScene();
+            }
         }
     }
 
     void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
+        {
             playerInTrigger = false;
+            timer = 0f; //reset timer on exit
+        }
     }
 
     public void LoadScene()
