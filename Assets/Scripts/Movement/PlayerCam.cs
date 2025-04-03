@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class PlayerCam : MonoBehaviour
 {
-    public float sensX;
-    public float sensY;
+    public float sensX = 100f;
+    public float sensY = 100f;
 
     public Transform orientation;
 
@@ -31,5 +31,11 @@ public class PlayerCam : MonoBehaviour
         //rotate cam and orientation
         transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
         orientation.rotation = Quaternion.Euler(0, yRotation, 0);
+    }
+
+    public void UpdateSensitivity(float newSensitivity)
+    {
+        sensX = newSensitivity;
+        sensY = newSensitivity; //or use separate X/Y sliders if needed
     }
 }
