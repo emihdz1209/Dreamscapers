@@ -16,7 +16,7 @@ public class FollowPlayer : MonoBehaviour
     private bool grounded;
     private Rigidbody rb;
 
-    private void Start()
+    void Start()
     {
         rb = GetComponent<Rigidbody>();
         if (rb == null)
@@ -24,9 +24,22 @@ public class FollowPlayer : MonoBehaviour
             rb = gameObject.AddComponent<Rigidbody>();
         }
         rb.freezeRotation = true;
+
+        if (playerOrientation == null)
+        {
+            GameObject playerCam = GameObject.Find("Player Cam");
+            if (playerCam != null)
+            {
+                playerOrientation = playerCam.transform;
+            }
+            else
+            {
+                Debug.LogError("Player Cam not found! Please assign playerOrientation manually.");
+            }
+        }
     }
 
-    private void Update()
+    void Update()
     {
         // Ground check
         grounded = Physics.Raycast(transform.position, Vector3.down, objectHeight * 0.5f + 0.3f, whatIsGround);
