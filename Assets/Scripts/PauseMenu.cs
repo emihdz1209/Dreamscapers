@@ -1,45 +1,67 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Audio; //required for AudioMixer
-using UnityEngine.UI;    //required for Slider
+using UnityEngine.Audio; // Required for AudioMixer
+using UnityEngine.UI;    // Required for Slider
 using TMPro;
+using UnityEngine.SceneManagement; // Required for scene management
 
-//attach this script to the canvas or an empty game object
 public class PauseMenu : MonoBehaviour
 {
+    public static PauseMenu Instance { get; private set; } // Singleton instance
+
     [Header("Sensitivity Settings")]
     public Slider sensitivitySlider;
-    public PlayerCam playerCam; //assign in Inspector
-    public TextMeshProUGUI sensitivityText; //optional label
+    public PlayerCam playerCam; // Assign in Inspector
+    public TextMeshProUGUI sensitivityText; // Optional label
 
-    //assign these in Inspector
-    public GameObject pauseMenuUI;
-    public AudioSource backgroundMusic;
-    public AudioMixer masterMixer;
-    public Slider volumeSlider;
+    [Header("UI Elements")]
+    public GameObject pauseMenuUI; // Assign in Inspector
+    public GameObject doorEnterText; // Assign in Inspector (scene-specific)
 
-    //SOUND PAUSE ALTERNATIVES
-    //AudioListener.pause = true; // Pauses all audio in the scene
-    //AudioListener.pause = false; // Resumes all audio
+    [Header("Audio Settings")]
+    public AudioSource backgroundMusic; // Assign in Inspector
+    public AudioMixer masterMixer; // Assign in Inspector
+    public Slider volumeSlider; // Assign in Inspector
 
     private bool isPaused = false;
 
-    void Start() {
-        //load saved volume (default: 0.8f if no save exists)
+    private void Awake()
+    {
+        // Singleton pattern
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject); // Destroy duplicate Canvas
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(pauseMenuUI.transform.root.gameObject); // Persist Canvas across scenes
+    }
+
+    private void Start()
+    {
+        // Load saved volume (default: 0.8f if no save exists)
         float savedVolume = PlayerPrefs.GetFloat("MasterVolume", 0.8f);
         volumeSlider.value = savedVolume;
         SetVolume(savedVolume);
 
-        //load saved sensitivity (default: 100f)
+        // Load saved sensitivity (default: 100f)
         float savedSensitivity = PlayerPrefs.GetFloat("MouseSensitivity", 100f);
         sensitivitySlider.value = savedSensitivity;
         UpdateSensitivityDisplay(savedSensitivity);
+
+        // Disable scene-specific elements by default
+        if (doorEnterText != null)
+        {
+            doorEnterText.SetActive(false);
+        }
     }
 
-    void Update()
+    private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape)) //esc
+        // Check if the Esc key is pressed
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (isPaused)
                 Resume();
@@ -50,12 +72,17 @@ public class PauseMenu : MonoBehaviour
 
     public void OnSensitivityChanged(float newValue)
     {
+        // Update player camera sensitivity
         playerCam.UpdateSensitivity(newValue);
+
+        // Save the new sensitivity value
         PlayerPrefs.SetFloat("MouseSensitivity", newValue);
+
+        // Update the sensitivity display text
         UpdateSensitivityDisplay(newValue);
     }
 
-    void UpdateSensitivityDisplay(float value)
+    private void UpdateSensitivityDisplay(float value)
     {
         if (sensitivityText != null)
             sensitivityText.text = $"Sensitivity: {value:F0}"; // F0 = no decimals
@@ -64,48 +91,51 @@ public class PauseMenu : MonoBehaviour
     public void Resume()
     {
         pauseMenuUI.SetActive(false);
-        Time.timeScale = 1f; //unfreeze game
+        Time.timeScale = 1f; // Unfreeze game
         Cursor.lockState = CursorLockMode.Locked; // Lock cursor (for FPS games)
         Cursor.visible = false;
         isPaused = false;
 
-        //resume music
+        // Resume music
         if (backgroundMusic != null)
-            backgroundMusic.UnPause(); //or backgroundMusic.Play();
+            backgroundMusic.UnPause();
     }
 
     public void Pause()
     {
         pauseMenuUI.SetActive(true);
-        Time.timeScale = 0f; //freeze game
+        Time.timeScale = 0f; // Freeze game
         Cursor.lockState = CursorLockMode.None; // Unlock cursor
         Cursor.visible = true;
         isPaused = true;
 
-        //pause music
+        // Pause music
         if (backgroundMusic != null)
             backgroundMusic.Pause();
     }
 
-    public void SetVolume(float volume) {
-        //convert linear slider (0-1) to logarithmic dB scale (-80 to 0)
+    public void SetVolume(float volume)
+    {
+        // Convert linear slider (0-1) to logarithmic dB scale (-80 to 0)
         masterMixer.SetFloat("MasterVolume", Mathf.Log10(volume) * 20);
 
-        //save the setting
+        // Save the setting
         PlayerPrefs.SetFloat("MasterVolume", volume);
     }
 
-    //the following are not used now but could be useful later
-
-    /*public void Restart()
+    public void ShowDoorEnterText()
     {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }*/
+        if (doorEnterText != null)
+        {
+            doorEnterText.SetActive(true);
+        }
+    }
 
-    /*public void QuitToMenu()
+    public void HideDoorEnterText()
     {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene("MainMenu"); // Replace with your menu scene name
-    }*/
+        if (doorEnterText != null)
+        {
+            doorEnterText.SetActive(false);
+        }
+    }
 }
