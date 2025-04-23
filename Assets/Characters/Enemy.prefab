@@ -35,7 +35,7 @@ Transform:
   - {fileID: 92624780120291396}
   - {fileID: 3393535007196571749}
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5596294636367004701
 MonoBehaviour:
@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerOrientation: {fileID: 0}
-  speed: 123.7
+  speed: 100
   objectHeight: 2
   whatIsGround:
     serializedVersion: 2

@@ -138,4 +138,17 @@ public class PauseMenu : MonoBehaviour
             doorEnterText.SetActive(false);
         }
     }
+
+    public void RestartScene()
+{
+    //hide pause menu UI manually
+    pauseMenuUI.SetActive(false);
+
+    //unpause the game first (in case the player restarts while paused)
+    Time.timeScale = 1f;
+
+    //reload the currently active scene
+    Scene currentScene = SceneManager.GetActiveScene();
+    SceneManager.LoadScene(currentScene.buildIndex);
+}
 }
