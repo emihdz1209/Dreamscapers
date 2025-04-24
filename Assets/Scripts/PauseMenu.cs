@@ -180,6 +180,19 @@ public class PauseMenu : MonoBehaviour
         SceneManager.LoadScene(currentScene.buildIndex);
     }
 
+    public void ReturnToMainMenu()
+    {
+        // Unpause the game
+        Time.timeScale = 1f;
+
+        // Optionally, reset cursor state
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        // Load the Main Menu scene (replace "MainMenu" with your actual scene name)
+        SceneManager.LoadScene("MainMenu");
+    }
+
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
