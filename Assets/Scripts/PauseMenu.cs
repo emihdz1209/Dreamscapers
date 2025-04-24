@@ -24,6 +24,12 @@ public class PauseMenu : MonoBehaviour
     public AudioMixer masterMixer; // Assign in Inspector
     public Slider volumeSlider; // Assign in Inspector
 
+    [Header("Animation Settings")]
+    [Tooltip("List of GameObjects with animations that should restart with the scene.")]
+    public List<GameObject> animatedObjects;
+    public List<string> validScenesForRestart;
+    //public string animationToRestart = "DefaultAnimation"; // Default name
+
     private bool isPaused = false;
 
     private void Awake()
@@ -37,7 +43,29 @@ public class PauseMenu : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(pauseMenuUI.transform.root.gameObject); // Persist Canvas across scenes
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (!validScenesForRestart.Contains(scene.name)) return; //only restart animations in scene 1
+
+        if (animatedObjects != null)
+        {
+            foreach (GameObject obj in animatedObjects)
+            {
+                if (obj == null) continue;
+
+                Animator anim = obj.GetComponent<Animator>();
+                if (anim != null)
+                {
+                    anim.Play(0, -1, 0f); // Plays the default state from the beginning
+                }
+            }
+        }
+    }
+
 
     private void Start()
     {
@@ -140,15 +168,20 @@ public class PauseMenu : MonoBehaviour
     }
 
     public void RestartScene()
-{
-    //hide pause menu UI manually
-    pauseMenuUI.SetActive(false);
+    {
+        //hide pause menu UI manually
+        pauseMenuUI.SetActive(false);
 
-    //unpause the game first (in case the player restarts while paused)
-    Time.timeScale = 1f;
+        //unpause the game first (in case the player restarts while paused)
+        Time.timeScale = 1f;
 
-    //reload the currently active scene
-    Scene currentScene = SceneManager.GetActiveScene();
-    SceneManager.LoadScene(currentScene.buildIndex);
-}
+        //reload the currently active scene
+        Scene currentScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(currentScene.buildIndex);
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
 }

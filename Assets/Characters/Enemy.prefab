@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerOrientation: {fileID: 0}
-  speed: 100
+  speed: 30
   objectHeight: 2
   whatIsGround:
     serializedVersion: 2
